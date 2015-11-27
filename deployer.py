@@ -1,4 +1,4 @@
-#!/home/liqin/Works/python3.2Env/bin/python3
+#!/home/liqin/Works/python3.5Env/bin/python3
 
 import os
 import sys
@@ -58,7 +58,8 @@ def deploy(env_cfg, deploy_file):
             if svr['name'] == s:
                 break
 
-        svr['sshKey'] = os.path.join(env_cfg['base_path'], svr['sshKey'])
+        if 'sshKey' in svr:
+            svr['sshKey'] = os.path.join(env_cfg['base_path'], svr['sshKey'])
 
         t = threading.Thread(target=deployOnServer, args=(svr, deploy_cfg))
         t.start()
@@ -71,7 +72,12 @@ def deploy(env_cfg, deploy_file):
 
 def deployOnServer(svr, deploy_cfg):
     # connect to server
-    ssh_fd = ssh_connect(svr['host'], svr['user'], port=svr['port'], key=svr['sshKey'])
+    ssh_fd = None
+    if 'password' in svr:
+        ssh_fd = ssh_connect(svr['host'], svr['user'], port=svr['port'], password=svr['password'])
+    elif 'sshKey' in svr:
+        ssh_fd = ssh_connect(svr['host'], svr['user'], port=svr['port'], key=svr['sshKey'])
+
     if ssh_fd:
         print('connect to server %s:%s' % (svr['host'], svr['port']))
         try:
@@ -84,7 +90,8 @@ def deployOnServer(svr, deploy_cfg):
                     # upload file
                     try:
                         print('start to upload file %s' % file['name'])
-                        f = sftp_put(sftpd, os.path.join(deploy_cfg['base_path'], file['name']), file['name'],
+                        f = sftp_put(sftpd, os.path.join(deploy_cfg['base_path'], file['name']),
+                                     os.path.join(deploy_cfg['remotePath'], file['name']),
                                      callback=sfpt_put_progress)
                         print('\nupload file %s successfully' % f)
                     except Exception as e:

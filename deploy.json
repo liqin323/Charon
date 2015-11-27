@@ -1,0 +1,13 @@
+{
+  "remotePath":"/home/azureuser/mongo-cleaner",
+  "files":[
+    {
+      "name":"mongo-cleaner.py",
+      "mode":"755",
+      "upload":true
+    }
+  ],
+  "servers": [
+    "sohot-db1-mon-hk-1"
+  ]
+}

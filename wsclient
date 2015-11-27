@@ -1,0 +1,20 @@
+#!/home/liqin/Works/python3.5Env/bin/python3
+
+from __future__ import print_function
+import websocket
+from base64 import b64encode
+
+if __name__ == "__main__":
+    userAndPass = b64encode(b"4b7a7bf5-0b32-4361-8222-6eb3bab7e71e:08ed06a53805d141b5d7d067790169ef5eb1356664dfc4d2b8bffcf26bb39210").decode("ascii")
+    auth_header = 'Authorization: Basic %s' % userAndPass
+
+    websocket.enableTrace(True)
+    ws = websocket.create_connection("ws://121.196.226.183/v1/accounts/liqin/online?accessToken=xxx&sessionID=yyy",
+                                     header=[auth_header])
+    print("Sending 'Hello, World'...")
+    ws.send("Hello, World")
+    print("Sent")
+    print("Receiving...")
+    result = ws.recv()
+    print("Received '%s'" % result)
+    ws.close()
