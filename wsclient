@@ -1,20 +1,62 @@
-#!/home/liqin/Works/python3.5Env/bin/python3
+#!/home/liqin/python3.5Env/bin/python3
 
-from __future__ import print_function
-import websocket
 from base64 import b64encode
+import websocket
+import _thread
+import time
+import json
+
+def on_message(ws, message):
+
+    print(message)
+
+    notification = json.loads(message)
+    ack = {'type': '000', 'content': {'sequencn_no': notification['header']['sequence_no']}}
+
+    ws.send(json.dumps(ack))
+
+def on_error(ws, error):
+    print
+    error
+
+
+def on_close(ws):
+    print
+    "### closed ###"
+
+
+def on_open(ws):
+    def run(*args):
+        message = {'type': '001-001', 'content': {'to': '4049f3f2-272d-403d-9a86-7850365c51d1', 'message': 'hello', 'timestamp': int(time.time())}}
+
+        print(json.dumps(message))
+
+        for i in range(10):
+            time.sleep(1)
+            ws.send(json.dumps(message))
+
+        ws.send()
+        ws.close()
+        print('thread terminating...')
+
+    _thread.start_new_thread(run, ())
+
 
 if __name__ == "__main__":
-    userAndPass = b64encode(b"4b7a7bf5-0b32-4361-8222-6eb3bab7e71e:08ed06a53805d141b5d7d067790169ef5eb1356664dfc4d2b8bffcf26bb39210").decode("ascii")
+    userAndPass = b64encode(
+        b"4b7a7bf5-0b32-4361-8222-6eb3bab7e71e:08ed06a53805d141b5d7d067790169ef5eb1356664dfc4d2b8bffcf26bb39210").decode(
+        "ascii")
     auth_header = 'Authorization: Basic %s' % userAndPass
 
     websocket.enableTrace(True)
-    ws = websocket.create_connection("ws://121.196.226.183/v1/accounts/liqin/online?accessToken=xxx&sessionID=yyy",
-                                     header=[auth_header])
-    print("Sending 'Hello, World'...")
-    ws.send("Hello, World")
-    print("Sent")
-    print("Receiving...")
-    result = ws.recv()
-    print("Received '%s'" % result)
-    ws.close()
+
+    ws = websocket.WebSocketApp(
+        "ws://121.196.226.183/v1/accounts/4049f3f2-272d-403d-9a86-7850365c51d1/online?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NTExMDE1MDIsImlkIjoiZmQyYTY5ZjktYjA5Ny00NTUyLWFiZjgtNDk5ZTBmMGQzYjA4IiwidHlwZSI6ImFwcGxpY2F0aW9uIn0.iRFDVpOS1OVJrWDaD4cG4-9qNv31CRTN30-xzExufO4&sessionID=yyy",
+        header=[auth_header],
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close)
+
+    ws.on_open = on_open
+
+    ws.run_forever()

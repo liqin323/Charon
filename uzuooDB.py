@@ -27,7 +27,8 @@ def main():
     client = MongoClient(hosts)
 
     print(options.db)
-    # AddWorkerRoles(client, options.db)
+    AddWorkerRoles(client, options.db)
+    # AddCountries(client, options.db)
 
     return 0
 
@@ -56,7 +57,7 @@ def AddWorkerRoles(db_client, db_name):
 
         worker_roles.insert_one(role_doc)
 
-    print('%s' % worker_roles.count())
+    print('worker roles count: %s' % worker_roles.count())
 
     worker_crafs = db_client[db_name]['worker.craft']
     crafts = ['家装', '工装', '软装', '局部装修', '改水电', '安灯/挂件', '安洁具', '找平', '贴瓷砖', '砌墙', '做防水', '吊顶', '做家具',
@@ -74,7 +75,37 @@ def AddWorkerRoles(db_client, db_name):
         craft_doc['id'] = id
         craft_doc['name'] = craft
 
-        worker_crafs.insert_one(craft_doc)
+        # worker_crafs.insert_one(craft_doc)
+
+    print('crafts count: %s' % len(crafts))
+
+
+def AddCountries(db_client, db_name):
+    country = {'id': '001', 'name': '中国', 'time_zone': '+08:00', 'provinces': []}
+    province = {'id': '001-001', 'name': '四川', 'cities': []}
+    city = {'id': "001-001-001", 'name': '成都', 'regions': []}
+
+    regions = ['武侯区', '金牛区', '青羊区', '成华区', '高新区', '锦江区', '郫县', '双流县', '高新西区', '龙泉驿区', '新都区', '温江区', '都江堰市', '彭州市',
+               '青白江区', '崇州市', '金堂县', '新津县', '邛崃市', '大邑县', '蒲江县']
+
+    count = 0
+    for region in regions:
+        count += 1
+
+        id = '001-001-001-%03d' % (count)
+        print(id, region)
+
+        region_doc = {'id': id, 'name': region}
+        city['regions'].append(region_doc)
+
+    province['cities'].append(city)
+    country['provinces'].append(province)
+
+    print(country)
+
+    cad = db_client[db_name]['country.administration.division']
+    cad.insert_one(country)
+
 
 if __name__ == '__main__':
     sys.exit(main())

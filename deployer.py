@@ -1,4 +1,4 @@
-#!/home/liqin/Works/python3.5Env/bin/python3
+#!/home/liqin/python3.5Env/bin/python3
 
 import os
 import sys
