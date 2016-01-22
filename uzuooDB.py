@@ -25,6 +25,7 @@ def main():
     print(hosts)
 
     client = MongoClient(hosts)
+    client.the_database.authenticate('adminApp', 'uzuooapp123', source=options.db)
 
     print(options.db)
     AddWorkerRoles(client, options.db)
@@ -38,11 +39,15 @@ def AddWorkerRoles(db_client, db_name):
 
     count = 0
     roles = ['设计师', '工长', '水电工', '泥工', '木工', '漆工', '特工', '保洁']
-    roles_craft = [['C-001', 'C-002', 'C-003'], ['C-001', 'C-002', 'C-004'], ['C-005', 'C-006', 'C-007'],
-                   ['C-008', 'C-009', 'C-010', 'C-011'], ['C-012', 'C-013', 'C-014', 'C-015'],
-                   ['C-016', 'C-017', 'C-018', 'C-019'],
-                   ['C-006', 'C-007', 'C-020', 'C-014', 'C-021', 'C-022', 'C-011', 'C-023'],
-                   ['C-024', 'C-025', 'C-026']]
+    roles_craft = [['C-001', 'C-002', 'C-003'],
+                   ['C-004', 'C-005', 'C-006', 'C-007'],
+                   ['C-008'],
+                   ['C-009', 'C-010', 'C-011'],
+                   ['C-012', 'C-013', 'C-014'],
+                   ['C-015', 'C-016'],
+                   ['C-017', 'C-018', 'C-019', 'C-020'],
+                   ['C-021', 'C-022', 'C-023']
+                   ]
 
     for role in roles:
         count += 1
@@ -60,9 +65,14 @@ def AddWorkerRoles(db_client, db_name):
     print('worker roles count: %s' % worker_roles.count())
 
     worker_crafs = db_client[db_name]['worker.craft']
-    crafts = ['家装', '工装', '软装', '局部装修', '改水电', '安灯/挂件', '安洁具', '找平', '贴瓷砖', '砌墙', '做防水', '吊顶', '做家具',
-              '安家具', '安门',
-              '乳胶漆', '硅藻泥', '木器漆', '真石漆', '安窗帘', '美缝', '贴墙纸', '铝扣板吊顶', '开荒', '深度保洁', '日常保洁']
+    crafts = ['工装', '家装', '软装',
+              '基装', '整装', '旧房改造', '局部装修',
+              '水电改造',
+              '找平', '贴瓷砖', '砌墙',
+              '吊顶', '做造型', '做家具',
+              '做木器漆', '刷乳胶漆',
+              '安灯具洁具', '封阳台', '美缝', '安家具',
+              '开荒', '深度保洁', '日常保洁']
 
     count = 0
     for craft in crafts:
@@ -75,7 +85,7 @@ def AddWorkerRoles(db_client, db_name):
         craft_doc['id'] = id
         craft_doc['name'] = craft
 
-        # worker_crafs.insert_one(craft_doc)
+        worker_crafs.insert_one(craft_doc)
 
     print('crafts count: %s' % len(crafts))
 
